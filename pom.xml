@@ -50,6 +50,7 @@
     </modules>
 
     <properties>
+        <bsoa_version>1.0.0-SNAPSHOT</bsoa_version>
         <javassist_version>3.19.0-GA</javassist_version>
         <netty_version>4.1.6.Final</netty_version>
         <spring_version>4.2.6.RELEASE</spring_version>
@@ -87,7 +88,7 @@
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-all</artifactId>
-                <version>${parent.version}</version>
+                <version>${bsoa_version}</version>
             </dependency>
 
             <dependency>

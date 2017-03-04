@@ -1,28 +1,19 @@
 /*
- * *
- *  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  * contributor license agreements.  See the NOTICE file distributed with
- *  * this work for additional information regarding copyright ownership.
- *  * The ASF licenses this file to You under the Apache License, Version 2.0
- *  * (the "License"); you may not use this file except in compliance with
- *  * the License.  You may obtain a copy of the License at
- *  * <p>
- *  * http://www.apache.org/licenses/LICENSE-2.0
- *  * <p>
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Copyright 2016 The BSOA Project
  *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.protocol.jsf;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.codec.Compressor;
 import io.bsoa.rpc.codec.CompressorFactory;
@@ -37,8 +28,8 @@ import io.bsoa.rpc.message.DecodableMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
@@ -46,6 +37,11 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p></p>
@@ -55,7 +51,7 @@ import io.netty.buffer.ByteBuf;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("jsf")
-public class JsfProtocolDecoder implements ProtocolDecoder {
+public class JsfProtocolDecoder extends ProtocolDecoder {
 
     /**
      * slf4j Logger for this class
@@ -64,9 +60,13 @@ public class JsfProtocolDecoder implements ProtocolDecoder {
 
     private ProtocolInfo protocolInfo;
 
-    @Override
-    public void setProtocolInfo(ProtocolInfo protocolInfo) {
-        this.protocolInfo = protocolInfo;
+    /**
+     * 构造函数
+     *
+     * @param protocolInfo 协议基本信息
+     */
+    public JsfProtocolDecoder(ProtocolInfo protocolInfo) {
+        super(protocolInfo);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class JsfProtocolDecoder implements ProtocolDecoder {
         ByteBuf in = nettyByteBuf.getByteBuf();
 
         // 前面2位magiccode 和 4位总长度 已经跳过
-         if (in.readerIndex() != 0) {
+        if (in.readerIndex() != 0) {
             throw new BsoaRpcException(22222, "readerIndex!=0");
         }
         int totalLength = in.readableBytes() + 6; //跳过了6位
@@ -143,13 +143,14 @@ public class JsfProtocolDecoder implements ProtocolDecoder {
             } else if (object instanceof HeartbeatResponse) {
                 HeartbeatResponse response = (HeartbeatResponse) object;
                 response.setTimestamp(in.readLong());
-            } else if (object instanceof NegotiatorRequest) {
-                NegotiatorRequest request = (NegotiatorRequest) object;
+            } else if (object instanceof NegotiationRequest) {
+                NegotiationRequest request = (NegotiationRequest) object;
                 request.setCmd(readString(in));
                 request.setData(readString(in));
-            } else if (object instanceof NegotiatorResponse) {
-                NegotiatorResponse response = (NegotiatorResponse) object;
-                response.setRes(readString(in));
+            } else if (object instanceof NegotiationResponse) {
+                NegotiationResponse response = (NegotiationResponse) object;
+                response.setError(in.readBoolean());
+                response.setData(readString(in));
             }
         } catch (BsoaRpcException e) {
             throw e;

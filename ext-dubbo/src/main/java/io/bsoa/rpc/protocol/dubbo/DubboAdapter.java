@@ -1,26 +1,23 @@
 /*
- * *
- *  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  * contributor license agreements.  See the NOTICE file distributed with
- *  * this work for additional information regarding copyright ownership.
- *  * The ASF licenses this file to You under the Apache License, Version 2.0
- *  * (the "License"); you may not use this file except in compliance with
- *  * the License.  You may obtain a copy of the License at
- *  * <p>
- *  * http://www.apache.org/licenses/LICENSE-2.0
- *  * <p>
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Copyright 2016 The BSOA Project
  *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.protocol.dubbo;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/18 09:13. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -46,27 +43,27 @@ public class DubboAdapter {
     /**
      * ok.
      */
-    public static final byte OK                = 20;
+    public static final byte OK = 20;
 
     /**
      * clien side timeout.
      */
-    public static final byte CLIENT_TIMEOUT    = 30;
+    public static final byte CLIENT_TIMEOUT = 30;
 
     /**
      * server side timeout.
      */
-    public static final byte SERVER_TIMEOUT    = 31;
+    public static final byte SERVER_TIMEOUT = 31;
 
     /**
      * request format error.
      */
-    public static final byte BAD_REQUEST       = 40;
+    public static final byte BAD_REQUEST = 40;
 
     /**
      * response format error.
      */
-    public static final byte BAD_RESPONSE      = 50;
+    public static final byte BAD_RESPONSE = 50;
 
     /**
      * service not found.
@@ -76,17 +73,17 @@ public class DubboAdapter {
     /**
      * service error.
      */
-    public static final byte SERVICE_ERROR     = 70;
+    public static final byte SERVICE_ERROR = 70;
 
     /**
      * internal server error.
      */
-    public static final byte SERVER_ERROR      = 80;
+    public static final byte SERVER_ERROR = 80;
 
     /**
      * internal server error.
      */
-    public static final byte CLIENT_ERROR      = 90;
+    public static final byte CLIENT_ERROR = 90;
 
     /**
      * The constant RESPONSE_WITH_EXCEPTION.
@@ -104,8 +101,7 @@ public class DubboAdapter {
     /**
      * to byte array.
      *
-     * @param v
-     *         value.
+     * @param v value.
      * @return byte[].
      */
     private static byte[] short2bytes(short v) {
@@ -117,7 +113,8 @@ public class DubboAdapter {
 
     /**
      * 是否匹配此协议
-     * @param  b1 第一位
+     *
+     * @param b1 第一位
      * @param b2 第二位
      * @return 是否匹配magiccode
      */
@@ -128,12 +125,12 @@ public class DubboAdapter {
     public static void main(String[] args) {
         System.out.println(MAGIC_HIGH);
         System.out.println(MAGIC_LOW);
-        System.out.println(MAGIC_HIGH  & 0xFF);
-        System.out.println(MAGIC_LOW  & 0xFF);
-        System.out.println(bytesToHexString(new byte[]{MAGIC_LOW }));
+        System.out.println(MAGIC_HIGH & 0xFF);
+        System.out.println(MAGIC_LOW & 0xFF);
+        System.out.println(bytesToHexString(new byte[]{MAGIC_LOW}));
     }
 
-    public static String bytesToHexString(byte[] src){
+    public static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder("");
         if (src == null || src.length <= 0) {
             return null;

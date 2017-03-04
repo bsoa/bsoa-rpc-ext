@@ -1,27 +1,19 @@
 /*
- * *
- *  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  * contributor license agreements.  See the NOTICE file distributed with
- *  * this work for additional information regarding copyright ownership.
- *  * The ASF licenses this file to You under the Apache License, Version 2.0
- *  * (the "License"); you may not use this file except in compliance with
- *  * the License.  You may obtain a copy of the License at
- *  * <p>
- *  * http://www.apache.org/licenses/LICENSE-2.0
- *  * <p>
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Copyright 2016 The BSOA Project
  *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.protocol.jsf;
-
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.codec.Compressor;
 import io.bsoa.rpc.codec.CompressorFactory;
@@ -37,8 +29,8 @@ import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
@@ -46,6 +38,10 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_OPEN;
 import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_SIZE_BASELINE;
@@ -58,7 +54,7 @@ import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_SIZE_BASELINE;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("jsf")
-public class JsfProtocolEncoder implements ProtocolEncoder {
+public class JsfProtocolEncoder extends ProtocolEncoder {
 
     /**
      * slf4j Logger for this class
@@ -68,16 +64,10 @@ public class JsfProtocolEncoder implements ProtocolEncoder {
     private boolean compressOpen = BsoaConfigs.getBooleanValue(COMPRESS_OPEN);
     private int compressSize = BsoaConfigs.getIntValue(COMPRESS_SIZE_BASELINE);
 
-    public JsfProtocolEncoder() {
+    public JsfProtocolEncoder(ProtocolInfo protocolInfo) {
+        super(protocolInfo);
         BsoaConfigs.subscribe(COMPRESS_SIZE_BASELINE, (oldValue, newValue) -> compressSize = (int) newValue);
         BsoaConfigs.subscribe(COMPRESS_OPEN, (oldValue, newValue) -> compressOpen = (boolean) newValue);
-    }
-
-    private ProtocolInfo protocolInfo;
-
-    @Override
-    public void setProtocolInfo(ProtocolInfo protocolInfo) {
-        this.protocolInfo = protocolInfo;
     }
 
     @Override
@@ -156,13 +146,14 @@ public class JsfProtocolEncoder implements ProtocolEncoder {
             } else if (object instanceof HeartbeatResponse) {
                 out.writeLong(((HeartbeatResponse) object).getTimestamp());
                 totalLength += 8;
-            } else if (object instanceof NegotiatorRequest) {
-                NegotiatorRequest request = (NegotiatorRequest) object;
+            } else if (object instanceof NegotiationRequest) {
+                NegotiationRequest request = (NegotiationRequest) object;
                 totalLength += writeString(out, request.getCmd());
                 totalLength += writeString(out, request.getData());
-            } else if (object instanceof NegotiatorResponse) {
-                NegotiatorResponse response = (NegotiatorResponse) object;
-                totalLength += writeString(out, response.getRes());
+            } else if (object instanceof NegotiationResponse) {
+                NegotiationResponse response = (NegotiationResponse) object;
+                out.writeBoolean(response.isError());
+                totalLength += (1 + writeString(out, response.getData()));
             }
             msg.setTotalLength(totalLength);
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段
